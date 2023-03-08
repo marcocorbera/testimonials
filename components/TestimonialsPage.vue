@@ -2,6 +2,6 @@
 import TalentlyHeader from '../heading/TalentlyHeader.vue';
 
 <template>
-  <CustomHeader />
-  <TestimonialBody />
+  <CustomHeader class="mt-5"/>
+  <TestimonialBody class="mt-5"/>
 </template>

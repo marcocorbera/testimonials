@@ -1,70 +1,93 @@
 <template>
-  <!-- Cards List -->
-  <div class="md:grid grid-cols-3 gap-4">
+  <!-- Cards Grid List -->
+  <div
+    v-if="isFetching"
+  >
+    ...Loading
+  </div>
+  <div
+    v-if="errorOnFetch"
+  >
+    ...Error on fetching data
+  </div>
+  <div v-if="!isFetching" class="md:grid grid-cols-3 gap-4 mt-10">
     <div
-      v-for="card in cards"
-      :key="card.name"
-      class="max-w-sm w-full lg_max-w-full lg:flex mx-5"
+      v-for="card in cardItems"
+      :key="card.id"
+      class="bg-white border-1 rounded-lg flex p-4 cursor-pointer shadow-lg mt-5 mx-0 px-0"
+      @click.stop="openDetail(card)"
     >
-      <div class="w-16 md:w-32 lg:w-48 grid grid-cols-2 gap-4 my-5 border-black">
-        <img :src="card.avatar" alt="Avatar Photo">
-        <div class="grid grid-rows-2 gap-4">
-          <div class="text-xs">
-            {{ card.name }} {{ card.last_name }}
-          </div>
-          <div class="text-xs">
-            {{ card.profession }}
-          </div>
+      <div class="w-1/4 flex justify-center items-center">
+        <div class="rounded-full overflow-hidden w-20 h-20">
+          <img :src="card.avatar" alt="Person's photo" class="w-full h-full object-cover">
         </div>
+      </div>
+      <div class="w-3/4 ml-4">
+        <p class="text-lg font-bold">{{ card.name }} {{ card.last_name }}</p>
+        <p class="text-gray-600">{{ card.profession }}</p>
       </div>
     </div>
   </div>
+  <!-- End of Cards Grid List -->
+  <TestimonialDetail
+    ref="testimonialDetailRef"
+    :show-detail="showDetailCard"
+    :no-testimony-item="noTestimonyItem"
+  />
+  <AddTestimonial
+    :show-add-testimonial="showAddTestimonial"
+    @close-add-testimonial="closeAddTestimonial"
+  />
 </template>
 <script setup>
-const cards = reactive([
-        {
-            id: "AvbkEYDuh3ZjyGHRN5lT",
-            avatar: "https://static-talently.s3.amazonaws.com/francisco_farfan_18754b3fed.jpg",
-            name: "Francisco",
-            last_name: "Farfán",
-            profession: "Ingeniero de Software Full-Stack",
-            github: "https://github.com/Talently-Oficial",
-            twitter: "https://twitter.com/TalentlyTech",
-            linkedin: "https://www.linkedin.com/school/talentlytech",
-            company_logo: "https://static-talently.s3.amazonaws.com/rappi_8fbc74f632.png"
-        },
-        {
-            id: "AxhS0b1KrJXdhaGsW40D",
-            avatar: "https://static-talently.s3.amazonaws.com/1606680003693_9c9e44a1a8.jfif",
-            name: "Lucas",
-            last_name: "Amilivia",
-            profession: "Ingeniero de Software",
-            github: "https://github.com/Talently-Oficial",
-            twitter: "https://twitter.com/TalentlyTech",
-            linkedin: "https://www.linkedin.com/school/talentlytech",
-            company_logo: "https://static-talently.s3.amazonaws.com/rappi_8fbc74f632.png"
-        },
-        {
-            id: "JbYse3nPX4QPlKnKc7vK",
-            avatar: "https://static-talently.s3.amazonaws.com/francisco_farfan_18754b3fed.jpg",
-            name: "Francisco",
-            last_name: "Farfán",
-            profession: "Ingeniero de Software Full-Stack",
-            github: "https://github.com/Talently-Oficial",
-            twitter: "https://twitter.com/TalentlyTech",
-            linkedin: "https://www.linkedin.com/school/talentlytech",
-            company_logo: "https://static-talently.s3.amazonaws.com/rappi_8fbc74f632.png"
-        },
-        {
-            id: "YGuA8b5249UMjovykvGQ",
-            avatar: "https://static-talently.s3.amazonaws.com/leonardo_rivera_dd23565e2b.webp",
-            name: "Leonardo",
-            last_name: "Rivera",
-            profession: "Desarrollador Angular",
-            github: "https://github.com/Talently-Oficial",
-            twitter: "https://twitter.com/TalentlyTech",
-            linkedin: "https://www.linkedin.com/school/talentlytech",
-            company_logo: "https://static-talently.s3.amazonaws.com/rappi_8fbc74f632.png"
-        }
-    ])
+const getAllUsersUrl = "https://api-challenge-talently.vercel.app/api/users"
+const { data: apiResponse } = useFetch(getAllUsersUrl)
+const isFetching = ref(false)
+const errorOnFetch = ref(false)
+const cardItems = ref([])
+onMounted(() => {
+  isFetching.value = true
+  if (!apiResponse.value.result) {
+    isFetching.value = false
+    errorOnFetch.value = true
+    return
+  }
+  cardItems.value = apiResponse.value.result
+  isFetching.value = false
+})
+
+// Card Detail
+const testimonialDetailRef = ref({})
+const handleWindowClick = (e) => {
+  // Closes the modal if clicked outside of it
+  if (!e.target.closest('bg-white')) {
+    closeDetail()
+  }
+}
+const noTestimonyItem = ref({})
+const cardId = ref('')
+const showDetailCard = ref(false)
+const openDetail = (card) => {
+  cardId.value = card.id
+  noTestimonyItem.value = card
+  showDetailCard.value = true
+  window.addEventListener('click', handleWindowClick)
+  testimonialDetailRef.value.getUserDetail(cardId.value)
+}
+const closeDetail = () => {
+  showDetailCard.value = false
+  window.removeEventListener('click', handleWindowClick)
+}
+
+// Add Testimonial
+defineProps({
+  showAddTestimonial: {
+    type: Boolean,
+    default: false
+  }
+})
+const emits = defineEmits(['close-add-testimonial'])
+const closeAddTestimonial = () => {
+  this.$emit('close-add-testimonial')
+}
 </script>

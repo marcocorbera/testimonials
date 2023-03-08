@@ -1,5 +1,5 @@
 <template>
-  <section class="mx-5 pt-5">
+  <section class="mx-5 px-5">
     <div class="flow-root">
       <h1 class="float-left text-3xl">
         Testimonials
@@ -11,11 +11,18 @@
         New
       </button>
     </div>
-    <TestimonialsGrid class="mt-5" />
+    <TestimonialsGrid
+      :show-add-testimonial="showAddTestimonial"
+      @close-add-testimonial="closeAddTestimonial"
+    />
   </section>
 </template>
 <script setup>
+const showAddTestimonial = ref(false)
 const addTestimonial = () => {
-  console.log('addTestimonial')
+  showAddTestimonial.value = true
+}
+const closeAddTestimonial = () => {
+  showAddTestimonial.value = false
 }
 </script>
