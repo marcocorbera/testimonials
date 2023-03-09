@@ -23,7 +23,7 @@
   </section>
   <div
     v-if="showSuccessMessage"
-    class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative fixed inset-0 bg-white bg-opacity-90 z-50"
+    class="fixed bottom-0 left-0 w-full bg-green-500 text-white p-4 text-center"
     role="alert"
   >
     Testimonial added successfully
