@@ -10,11 +10,11 @@
   >
     ...Error on fetching data
   </div>
-  <div v-if="!isFetching" class="md:grid grid-cols-3 gap-4 mt-10">
+  <div v-if="!isFetching" class="md:grid grid-cols-3 gap-4 mt-32">
     <div
       v-for="card in cardItems"
       :key="card.id"
-      class="bg-white border-1 rounded-lg flex p-4 cursor-pointer shadow-lg mt-5 mx-0 px-0"
+      class="bg-white border-1 rounded-lg flex p-4 cursor-pointer shadow-lg mt-5 mx-0 px-5 py-5"
       @click.stop="openDetail(card)"
     >
       <div class="w-1/4 flex justify-center items-center">
@@ -36,15 +36,30 @@
   />
   <AddTestimonial
     :show-add-testimonial="showAddTestimonial"
-    @close-add-testimonial="closeAddTestimonial"
+    @close-add-testimonial="$emit('close-add-testimonial')"
+    @added-testimonial="addedTestimonial($event)"
   />
 </template>
 <script setup>
-const getAllUsersUrl = "https://api-challenge-talently.vercel.app/api/users"
-const { data: apiResponse } = useFetch(getAllUsersUrl)
+const getTestimonialsUrl = "https://api-challenge-talently.vercel.app/api/users"
+const { data: apiResponse } = useFetch(getTestimonialsUrl)
 const isFetching = ref(false)
 const errorOnFetch = ref(false)
 const cardItems = ref([])
+
+const getTestimonials = ref(() => {
+  isFetching.value = true
+  if (!apiResponse.value.result) {
+    isFetching.value = false
+    errorOnFetch.value = true
+    return
+  }
+  cardItems.value = apiResponse.value.result
+  isFetching.value = false
+})
+defineExpose({
+  getTestimonials
+})
 onMounted(() => {
   isFetching.value = true
   if (!apiResponse.value.result) {
@@ -65,7 +80,7 @@ const handleWindowClick = (e) => {
   }
 }
 const noTestimonyItem = ref({})
-const cardId = ref('')
+const cardId = ref("")
 const showDetailCard = ref(false)
 const openDetail = (card) => {
   cardId.value = card.id
@@ -86,8 +101,9 @@ defineProps({
     default: false
   }
 })
-const emits = defineEmits(['close-add-testimonial'])
-const closeAddTestimonial = () => {
-  this.$emit('close-add-testimonial')
+const addedTestimonial = (testimony) => {
+  cardItems.value.push(testimony)
+  emit('added-testimonial')
 }
+const emit = defineEmits(['closeAddTestimonial', 'addedTestimonial'])
 </script>
